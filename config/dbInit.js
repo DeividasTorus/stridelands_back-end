@@ -5,6 +5,9 @@ const createTables = async () => {
         -- Drop tables if they exist (to reset the database)
        -- DROP TABLE IF EXISTS user_stats CASCADE;
        -- DROP TABLE IF EXISTS users CASCADE;
+        -- DROP TABLE IF EXISTS resources CASCADE;
+       -- DROP TABLE IF EXISTS buildingTypes CASCADE;
+       -- DROP TABLE IF EXISTS userBuildings CASCADE;
 
         -- Recreate users table
         CREATE TABLE IF NOT EXISTS users (
@@ -41,6 +44,43 @@ const createTables = async () => {
     crops INT DEFAULT 0,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS buildingTypes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    requiredTownHallLevel INT DEFAULT 0,
+    resourceCost JSONB NOT NULL,
+    buildTime INT NOT NULL,
+    upgradeRequirement INT[] DEFAULT NULL,
+    stepCountingDuration INT[] DEFAULT NULL,
+    troopsStorage INT DEFAULT NULL,
+    productionRate INT DEFAULT NULL,
+    baseStorage INT DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS userBuildings (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    buildingTypeId INT NOT NULL REFERENCES BuildingTypes(id),
+    level INT DEFAULT 0,
+    built BOOLEAN DEFAULT FALSE,
+    location VARCHAR(20),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS userSteps (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    is_tracking BOOLEAN DEFAULT FALSE,
+    tracking_start_time TIMESTAMP,  -- when the current session started
+    steps_at_session_start INT DEFAULT 0, -- steps at session start (optional, but useful)
+    stepsGained INT DEFAULT 0, -- total gained in this session
+    totalSteps INT DEFAULT 0, -- total steps ever recorded
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
     `;
 
 

@@ -5,6 +5,8 @@ const cookieParser = require("cookie-parser"); // ✅ Required for reading cooki
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const resourcesRoutes = require('./routes/resourcesRoutes')
+const buildingsRoutes = require('./routes/buildingsRoutes');
+const stepsRoutes = require("./routes/stepsRoutes");
 const pool = require("./config/db");
 const createTables = require("./config/dbInit"); // Import table initializer
 
@@ -15,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ CORS Configuration (Allows Cookies to be Sent & Received)
 app.use(cors({
-  origin: "http://localhost:19006", // Replace with your frontend URL (Expo)
+  origin: "http://localhost:3000", // Replace with your frontend URL (Expo)
   credentials: true, // ✅ Allows sending HTTP-only cookies
 }));
 
@@ -35,6 +37,8 @@ pool.connect()
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/user", resourcesRoutes);
+app.use('/user/buildings', buildingsRoutes);
+app.use("/user", stepsRoutes);
 
 // ✅ API Health Check
 app.get("/", (req, res) => {

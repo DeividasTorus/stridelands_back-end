@@ -60,9 +60,33 @@ const register = async (req, res) => {
 
     await client.query(
       `INSERT INTO resources (user_id, wood, clay, iron, crops) 
-       VALUES ($1, 0, 0, 0, 0)`,
+       VALUES ($1, 4000, 4000, 4000, 1000)`,
       [userId]
     );
+
+    await client.query(
+      `INSERT INTO userSteps (user_id, is_tracking, stepsGained, totalSteps, steps_at_session_start)
+       VALUES ($1, false, 0, 0, 0)`,
+      [userId]
+    );
+
+
+    // 1. Fetch all building type IDs
+    const buildingTypes = await client.query(`SELECT id FROM BuildingTypes`);
+
+    // 2. Insert a row into userBuildings for each type
+    const buildingInserts = buildingTypes.rows.map(({ id }) => {
+      return client.query(
+        `INSERT INTO userBuildings (user_id, buildingTypeId, level, built) 
+     VALUES ($1, $2, 0, false)`,
+        [userId, id]
+      );
+    });
+
+    // 3. Execute all inserts
+    await Promise.all(buildingInserts);
+
+
 
     await client.query("COMMIT");
 
@@ -157,7 +181,7 @@ const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const userResult = await pool.query("SELECT id, username, email, tribe FROM users WHERE id = $1", [userId]);
+    const userResult = await pool.query("SELECT id, username, email, tribe, avatar FROM users WHERE id = $1", [userId]);
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
