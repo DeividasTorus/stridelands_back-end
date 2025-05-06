@@ -79,6 +79,64 @@ CREATE TABLE IF NOT EXISTS userSteps (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS warriorTypes (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    level INT DEFAULT 1,
+    resourceCost JSONB NOT NULL, 
+    trainingCost JSONB NOT NULL,
+    trainingTime INT NOT NULL,
+    upgradingTime INT NOT NULL,
+    attack INT NOT NULL,
+    defense INT NOT NULL,
+    speed INT NOT NULL,
+    requiredAcademyLevel INT NOT NULL,
+    upgradeRequirements INT[] DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS userWarriors (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id),
+    warrior_type_id INT NOT NULL REFERENCES warriorTypes(id),
+
+    name VARCHAR(50) NOT NULL,
+    count INT DEFAULT 0,
+    level INT DEFAULT 1,
+
+    trainingCost JSONB NOT NULL,
+    resourceCost JSONB NOT NULL,
+    trainingTime INT NOT NULL,
+    upgradingTime INT NOT NULL,
+    attack INT NOT NULL,
+    defense INT NOT NULL,
+    speed INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    UNIQUE(user_id, warrior_type_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS warriorTrainingQueue (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id),
+    warrior_type_id INT NOT NULL REFERENCES warriorTypes(id),
+    count INT NOT NULL,
+    finish_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS warriorUpgradeQueue (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id),
+    warrior_type_id INT NOT NULL REFERENCES warriorTypes(id),
+    upgrading_time INT NOT NULL,
+    finish_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
 
     `;

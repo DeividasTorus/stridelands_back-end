@@ -70,6 +70,46 @@ const register = async (req, res) => {
       [userId]
     );
 
+    // Fetch all warrior templates from warriorTypes
+    const warriorTypes = await client.query(`SELECT * FROM warriorTypes`);
+
+    // Insert one userWarrior for each warrior type
+    const warriorInserts = warriorTypes.rows.map((warrior) => {
+      return client.query(
+        `INSERT INTO userWarriors (
+      user_id,
+      warrior_type_id,
+      name,
+      count,
+      level,
+      trainingCost,
+      resourceCost,
+      trainingTime,
+      upgradingTime,
+      attack,
+      defense,
+      speed
+    ) VALUES (
+      $1, $2, $3, 0, 1, $4, $5, $6, $7, $8, $9, $10
+    )`,
+        [
+          userId,
+          warrior.id,
+          warrior.name,
+          warrior.trainingcost,
+          warrior.resourcecost,
+          warrior.trainingtime,
+          warrior.upgradingtime,
+          warrior.attack,
+          warrior.defense,
+          warrior.speed
+        ]
+      );
+    });
+
+    await Promise.all(warriorInserts);
+
+
 
     // 1. Fetch all building type IDs
     const buildingTypes = await client.query(`SELECT id FROM BuildingTypes`);
